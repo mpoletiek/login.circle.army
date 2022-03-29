@@ -85,6 +85,10 @@ else{
             <!--<img class="mb-4" src="/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57">
             <button class="w-100 btn btn-lg btn-primary btn-light" type="submit" onclick="loginApp.init();">Login</button>-->
             <p id="status-text" class="mt-5 mb-3 text-muted">Checking Web3</p>
+            <div class="input-group mb-3">
+              <span class="input-group-text" id="basic-addon1">Password:</span>
+              <input type="text" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="basic-addon1">
+            </div>
             <button id="login-button" class="w-100 btn btn-lg btn-primary btn-light" type="submit" style="display:none" onclick="loginApp.signSecret();">Login</button>
         </div>
         <div id="secondRow" class="row justify-content-center">

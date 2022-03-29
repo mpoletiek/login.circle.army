@@ -43,7 +43,7 @@ if(isset($post_data->consent_challenge) && isset($post_data->grant_scope) && iss
     error_log("api/consent.php: Found user: ".$subRow['sub']);
 
 
-    $session = array('access_token'=>array('sub'=>$subRow['sub']), 'id_token'=>array('sub'=>$subRow['sub'], 'provider'=>'https://auth.circle.army/'));
+    $session = array('access_token'=>array('sub'=>$subRow['sub']), 'id_token'=>array('sub'=>$subRow['sub'], 'provider'=>'https://auth.circle.army/', 'scope'=>$post_data->grant_scope));
     $consentChallenge = $post_data->consent_challenge;
     $grant_scope = explode(' ',$post_data->grant_scope);
 

@@ -148,7 +148,7 @@ if(isset($_POST['response'])){
             $data = [ 'subject'=>$userRow['sub'], 'remember'=>true, 'remember_for'=>3600 ];
             $post_data = json_encode($data);
             // Get challenge information
-            $crl = curl_init('http://127.0.0.1:4445/oauth2/auth/requests/login/accept?login_challenge='.$loginChallenge);
+            $crl = curl_init($OAUTH2_ADMIN_ENDPOINT.'oauth2/auth/requests/login/accept?login_challenge='.$loginChallenge);
             curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($crl, CURLINFO_HEADER_OUT, true);
             curl_setopt($crl, CURLOPT_CUSTOMREQUEST,"PUT");

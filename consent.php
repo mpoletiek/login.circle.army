@@ -54,11 +54,17 @@ $result = curl_exec($crl);
 // Decode result
 $resultObj = json_decode($result);
 //var_dump($resultObj);
+$client = $resultObj->client;
 $scopes = explode(' ',$resultObj->client->scope);
 $sub = $resultObj->subject;
 
+if(!isset($resultObj->client->scope)){
+    error_log("consent.php: Invalid Challenge");
+    exit();
+}
+
 // Are we consenting?
-if(isset($_POST['consent_accept']) == "1"){
+if($_POST['consent_accept'] == "true"){
     error_log("consent.php: Accepting");
     
     $url = $OAUTH2_ADMIN_ENDPOINT."oauth2/auth/requests/consent/accept?consent_challenge=".$consentChallenge;
@@ -107,6 +113,38 @@ if(isset($_POST['consent_accept']) == "1"){
     }
 
 }
+elseif($_POST['consent_accept'] == "false"){
+    error_log("consent.php: Declining Consent");
+
+    $url = $OAUTH2_ADMIN_ENDPOINT."oauth2/auth/requests/consent/reject?consent_challenge=".$consentChallenge;
+    $postData = array('error'=>'request_denied');
+    $postJson = json_encode($postData);
+    $crl = curl_init($url);
+    curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($crl, CURLINFO_HEADER_OUT, true);
+    curl_setopt($crl, CURLOPT_CUSTOMREQUEST,"PUT");
+    curl_setopt($crl, CURLOPT_POSTFIELDS, $postJson);
+    // Set HTTP Header for POST request 
+    curl_setopt($crl, CURLOPT_HTTPHEADER, array(
+        'Content-Type: application/json'
+    ));
+    // Submit the POST request
+    try{
+        $result = curl_exec($crl);
+        //var_dump($result);
+    }
+    catch (exception $e){
+        var_dump($e);
+    }
+
+    // Decode result
+    $resultObj = json_decode($result);
+    if(isset($resultObj->redirect_to)){
+        header("Location: ".$resultObj->redirect_to);
+        exit();
+    }
+    exit();
+}
 
 ?>
 
@@ -138,17 +176,18 @@ if(isset($_POST['consent_accept']) == "1"){
 
         <div id="firstRow" class="row justify-content-center">
             <i class="fa-solid fa-user fa-10x"></i>
-            <h2>Consent</h2>
+            <img src="<?php echo $client->logo_uri; ?>" width="100px" height="100px">
+            <p><?php echo $client->client_name; ?> is requesting access to the following.</p>
             <form method="POST" action="consent.php">
                 <input type="hidden" name="consent_challenge" value="<?php echo $consentChallenge; ?>">
-                <input type="hidden" name="consent_accept" value="1">
+                <input type="hidden" name="consent_accept" value="true">
 
                 <?php
                     $i = 0;
                     foreach ($scopes as $scope){
                         $input = <<<EOF
-                        <input type="checkbox" id="$i-scope" name="$i-scope" value="$scope">
-                        <label for="$i-scope"> $scope</label><br>
+                        <input class="form-check-input" type="checkbox" id="$i-scope" name="$i-scope" value="$scope">
+                        <label class="form-check-label" for="$i-scope"> $scope</label><br>
 EOF;
                         
                         $i++;
@@ -157,8 +196,16 @@ EOF;
 
                 ?>
 
+<br><br>
+                <button class="btn btn-light" type="submit">I Consent</button>
 
-                <button type="submit">I Consent</button>
+            </form>
+
+            <form method="POST" action="consent.php">
+                <input type="hidden" name="consent_challenge" value="<?php echo $consentChallenge; ?>">
+                <input type="hidden" name="consent_accept" value="false">
+                <button class="btn btn-danger" type="submit">Decline</button>
+                </form>
             </form>
         </div>
 
