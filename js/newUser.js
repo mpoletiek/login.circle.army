@@ -92,8 +92,20 @@ loginApp = {
 
     walletConnected: function() {
       loginApp.loadingSpinner(false);
+      // Query the login db for the user
+      // get the sign-in key.
+      data = {'sub': loginApp.accounts[0]};
+
+      $.post("/api/login.php", data, function(result){
+        console.log(result);
+        var jsonResult = jQuery.parseJSON(result);
+        console.log("Challenge: "+jsonResult.result['challenge']);
+        loginApp.challenge = jsonResult.result['challenge'];
+
+      });
       
       // We're connected, show password prompt and check for valid passwords
+
       $('#login-button').show();
       $('#password-input').show();
       $('#password-text').show();
@@ -143,13 +155,14 @@ loginApp = {
 
       console.log("Login Challenge: "+loginApp.loginChallenge);
 
-      var data = { 'sub' : sub, 'response' : response, 'challenge_id' : loginApp.loginChallenge };
+      var data = { 'sub' : sub, 'response' : response, 'login_challenge' : loginApp.loginChallenge };
       var resultJson = null;
 
-      $.post('/api/login.php', data, function(result){
+      $.post('/api/newuser.php', data, function(result){
 
           console.log(result);
           resultJson = jQuery.parseJSON(result);
+          console.log(resultJson);
           if(resultJson.result['login'] == true){
             console.log("LOGIN SUCCESSFUL");
             console.log("REDIRECT TO: "+resultJson.result['redirect_to']);
@@ -157,7 +170,7 @@ loginApp = {
           }
           else{
             $('#status-text').text("Login Failed");
-            // $("#login-button").hide();
+            $("#login-button").hide();
             return false;
           }
 

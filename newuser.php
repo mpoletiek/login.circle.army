@@ -6,54 +6,74 @@ require './api/include/include.php';
 // Start Session
 session_start();
 
-if(isset($_GET['login_challenge'])){
-  $loginChallenge = $_GET['login_challenge'];
-  //print($loginChallenge);
+//Acceptable Referers
+$authorizedReferers = array('https:login.circle.armylogin.php');
+$sub = NULL;
+
+// verify valid referrers
+$serverReferal = preg_replace('/\//','',$_SERVER['HTTP_REFERER']);
+$matched_ref = 0;
+$quote = '';
+foreach ($authorizedReferers as $auth_ref) {
+    $quote = preg_quote($auth_ref);
+    if(preg_match('/'.$quote.'/',$serverReferal)){
+        $matched_ref = 1;
+    }
+}
+if($matched_ref == 0){
+    $returnArray['message']='quote: '.$quote.'Wrong Referer: '.$serverReferal;
+    printf(json_encode($returnArray));
+    exit();
+}
+
+if(!isset($_GET['login_challenge']) || !isset($_GET['sub'])){
+    error_log("newuser.php: Missing Arguments");
+    exit();
+}
+$loginChallenge = $_GET['login_challenge'];
+$sub = $_GET['sub'];
+
+// Connect to DB to find out if user actually exists
+$db = pg_connect( "$db_host $db_port $db_name $db_credentials" );
+if(!$db){
+	//http_response_code(400);
+    //echo "Error connecting to DB\n";
+    $returnArray['message']='Could not connect to db';
+    printf(json_encode($returnArray));
+	pg_close($db);
+	exit();
 }
 else{
-  error_log("login.php: missing login_challenge");
-  exit();
+    //echo "Connected to DB\n";
 }
 
-// Get challenge information
-$crl = curl_init($OAUTH2_ADMIN_ENDPOINT.'oauth2/auth/requests/login?login_challenge='.$loginChallenge);
-curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($crl, CURLINFO_HEADER_OUT, true);
-// Set HTTP Header for POST request 
-curl_setopt($crl, CURLOPT_HTTPHEADER, array(
-  'Content-Type: application/json'
-));
+//query DB for user
+$get_user_sql = "SELECT * FROM users WHERE sub='".pg_escape_string($sub)."'";
+$get_user_ret = pg_query($db,$get_user_sql);
+if(!$get_user_ret){
+	//http_response_code(400);
+    $returnArray['message']='could not query sub';
+    printf(json_encode($returnArray));
+	pg_close($db);
+	exit();
+}
+$userRow = pg_fetch_assoc($get_user_ret);
+if(isset($userRow['id'])){
+    error_log("newuser.php: User Exists");
+    exit();
+}
 
-// Submit the POST request
-try{
-  $result = curl_exec($crl);
-}
-catch (exception $e){
-  var_dump($e);
-}
+error_log("newuser.php: No user exists, can create new user");
 
-$resultObj = json_decode($result);
-//var_dump($result);
-if(isset($resultObj->skip)){
-  error_log("login.php: skip set, valid request");
-  $skip = $resultObj->skip;
-  if($skip){
-    //echo "<br>Remember set, skipping";
-    error_log("login.php: already logged-in skipping");
-  }
-  else{
-    //echo "<br>Skip false, force login";
-    error_log("login.php: skip false, forcing login");
-  }
-}
-else{
-  //invalid request
-  error_log("login.php: login challenge invalid");
-  die();
-}
+
+
+
 
 
 ?>
+
+
+
 
 <!doctype html>
 <html lang="en">
@@ -73,7 +93,7 @@ else{
      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     
-    <title>Circle.Army - Login</title>
+    <title>Circle.Army - New User</title>
 
   </head>
   <body class="bg-dark text-light">
@@ -83,6 +103,8 @@ else{
 
         <div id="firstRow" class="row justify-content-center">
             <i class="fa-solid fa-user fa-10x"></i>
+            <h1>Create Your Circle.Army Account</h1>
+            <p>Enter your desired password.</p>
             <!--<img class="mb-4" src="/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57">
             <button class="w-100 btn btn-lg btn-primary btn-light" type="submit" onclick="loginApp.init();">Login</button>-->
             <p id="status-text" class="mt-5 mb-3 text-muted">Checking Web3</p>
@@ -127,13 +149,9 @@ else{
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     <!-- Login App -->
-    <script src="/js/loginApp.js"></script>
-    
+    <script src="/js/newUser.js"></script>
+    <!-- Password Checker -->
     <script src="/js/passCheck.js"></script>
-      
-
-
-    </script>
 
   </body>
 </html>

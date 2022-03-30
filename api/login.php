@@ -41,6 +41,11 @@ if(isset($_POST['challenge_id'])){
 
         $resultObj = json_decode($result);
         //var_dump($resultObj);
+        if(!isset($resultObj->client)){
+            $returnArray['message']='Unable to discover login challenge';
+            printf(json_encode($returnArray));
+            exit();
+        }
 
 
     }
@@ -111,37 +116,26 @@ $userRow = pg_fetch_assoc($get_user_ret);
 if(!isset($userRow['id'])){
 
     // User does not exist, create user
-    // get new Challenge
-    $newChallenge = generateNewChallenge(128,'users',$db);
-    //echo "newChallenge: ".$newChallenge."\n";
-    $new_user_sql = "INSERT INTO users (sub, challenge) VALUES ('".pg_escape_string($sub)."','".pg_escape_string($newChallenge)."')";
-    $new_user_ret = pg_query($db,$new_user_sql);
-    if(!$new_user_ret){
-        //http_response_code(500)
-        $returnArray['message']='Could not create user, db query failed.';
-        printf(json_encode($returnArray));
-        //echo "Failed to create new user\n";
-        pg_close($db);
-        exit();
-    }
-    else{
-        //echo "User created\n";
-        $returnArray['message']="Sub created.";
-        $returnArray['success']=true;
-        printf(json_encode($returnArray));
-        pg_close($db);
-        exit();
-    }
+
+    // Redirect to user creation
+    $returnArray['message'] = "Login successful";
+    $returnArray['result'] = array('login' => true, 'redirect_to' => 'https://login.circle.army/newuser.php?login_challenge='.$loginChallenge.'&sub='.$sub);
+    $returnArray['success'] = true;
+    $jsonReturn = json_encode($returnArray);
+    echo $jsonReturn;
+    pg_close($db);
+    exit();
+
 }
 
 // User captured, do we have a challenge response being offered?
 if(isset($_POST['response'])){
     
     // is response available for current user
-    if(isset($userRow['response'])){
+    if(isset($userRow['auth_response'])){
         
         // does the response match?
-        if($userRow['response'] == $_POST['response']){
+        if($userRow['auth_response'] == $_POST['response']){
 
             // Login successful, accept the challenge
             // Accept Login Challenge
@@ -188,23 +182,18 @@ if(isset($_POST['response'])){
                 pg_close($db);
                 exit();
             }
-
-            
+        }
+        else{
+            // Invalid Password
+            $returnArray['message']='Login Failed';
+            $returnArray['result']=array('login'=>false);
+            printf(json_encode($returnArray));
+            exit();
         }
     }
     else{
-        // response is blank, fill it out
-        $update_response_sql="UPDATE users SET response='".pg_escape_string($_POST['response'])."' WHERE sub='".pg_escape_string($sub)."'";
-        $update_response_ret = pg_query($db,$update_response_sql);
-        if(!$update_response_ret){
-            $returnArray['message']='Failed to set response for sub';
-            printf(json_encode($returnArray));
-            pg_close($db);
-            exit();
-        }
-        // no response provided, response recorded
-        $returnArray['message']='Set response for sub';
-        $returnArray['success']=true;
+        
+        $returnArray['message']='No response provided';
         printf(json_encode($returnArray));
         pg_close($db);
         exit();
