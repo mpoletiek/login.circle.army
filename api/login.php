@@ -138,6 +138,7 @@ if(isset($_POST['response'])){
         if($userRow['auth_response'] == $_POST['response']){
 
             // Login successful, accept the challenge
+
             // Accept Login Challenge
             $data = [ 'subject'=>$userRow['sub'], 'remember'=>true, 'remember_for'=>3600 ];
             $post_data = json_encode($data);
