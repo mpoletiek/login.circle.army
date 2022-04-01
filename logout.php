@@ -104,11 +104,8 @@ elseif($_POST['logout_accept'] == "false"){
         var_dump($e);
     }
 
-    // Decode result
-    $resultObj = json_decode($result);
-    if(isset($resultObj->redirect_to)){
-        //header("Location: ".$resultObj->redirect_to);
-    }
+    // Redirect to provider home
+    header("Location: https://www.circle.army/home.php");
     exit();
 }
 

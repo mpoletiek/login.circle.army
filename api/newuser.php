@@ -92,7 +92,7 @@ if(isset($userRow['id'])){
 }
 
 // Login challenge valid and no current user exists, create the new user
-$new_user_query = "INSERT INTO users (sub, auth_response) VALUES ('".pg_escape_string($sub)."','".pg_escape_string($response)."')";
+$new_user_query = "INSERT INTO users (sub, auth_response) VALUES ('".pg_escape_string($sub)."','".pg_escape_string(hash('sha512',$response))."')";
 $new_user_ret = pg_query($db,$new_user_query);
 if(!$new_user_ret){
     //http_response_code(500)

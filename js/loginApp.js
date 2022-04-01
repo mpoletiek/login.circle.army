@@ -4,13 +4,10 @@ loginApp = {
     connected: false,
     web3: null,
     chainId: null,
-    acceptedNetworks: [ 137 ],
     networkAccepted: false,
-    esJsonData: null,
-    maticPrice: null,
-    latestTXHash: null,
     challenge: null,
     loginChallenge: document.getElementById('challenge_id').innerHTML,
+    state: document.getElementById('session_state').innerHTML,
     
 
     // This is the first function called. Here we can setup stuff needed later
@@ -41,10 +38,26 @@ loginApp = {
         }
         
         // User granted access to accounts
-        console.log("Account[0]: "+loginApp.accounts[0]);
+        //console.log("Account[0]: "+loginApp.accounts[0]);
         
         loginApp.web3Provider = window.ethereum;
         console.log("modern dapp browser");
+
+        var data = { 'sub' : loginApp.accounts[0], 'challenge_id' : loginApp.loginChallenge };
+        var resultJson = null;
+        // Let's find out if a user already exists
+        $.post('/api/user.php', data, function(result){
+
+          //console.log("DOES USER EXIST: "+result);
+          resultJson = jQuery.parseJSON(result);
+          if(resultJson.result['user'] == false){
+            // User Does Not Exist, redirect to new user page
+            newUrl = 'https://login.circle.army/newuser.php?login_challenge='+loginApp.loginChallenge+'&sub='+loginApp.accounts[0];
+            window.location.href=newUrl;
+          }
+
+        });
+
       }
       // Legacy dapp browsers...
       else if (window.web3) {
@@ -67,25 +80,15 @@ loginApp = {
 
       // Initialize Web3
       if(loginApp.connected){
-        loginApp.web3 = new Web3(loginApp.web3Provider);
-        // Get current Blockchain Network and check if we accept
-        loginApp.chainId = await loginApp.web3.eth.net.getId();
-        console.log("Chain ID: "+loginApp.chainId);
-
-        if(loginApp.acceptedNetworks.includes(loginApp.chainId)){
-            console.log("Valid Blockchain Network");
-            loginApp.networkAccepted = true;
-        }
         
-        console.log("loginApp.connected: "+loginApp.connected);
-
+        loginApp.web3 = new Web3(loginApp.web3Provider);
+        // Get current Blockchain Network
+        loginApp.chainId = await loginApp.web3.eth.net.getId();
+        
         return loginApp.walletConnected();
-        //return App.drawDonateForm();
       }
       else{
-        return loginApp.loadingSpinner(false);
-        //return App.drawWalletOptions();
-          
+        return loginApp.loadingSpinner(false);    
       }
 
     },
@@ -106,7 +109,7 @@ loginApp = {
     signSecret: async function() {
 
       var msg = await $('#pass').val();
-      console.log("msg: "+msg);
+      //console.log("msg: "+msg);
       var account = loginApp.accounts[0];
       var params = [msg, account];// The account is the one grabbed at accessing the Wallet (after the User Approval)
       var method = 'personal_sign';
@@ -118,14 +121,10 @@ loginApp = {
         account,
       }, function (err, result) {
         //result is again an object with fields : result.error, result.result
-        //YOU COULD SEND IT TO THE BACKEND FOR VERIFICATION.
-        //console.log("error: "+result.error);
-        //console.log("result: "+result.result);
         loginApp.loadingSpinner(false);
         $('#status-text').text("Signed");
         $("#login-button").hide();
-        console.log("user: "+loginApp.accounts[0]);
-        console.log("pass: "+result.result);
+
         if(err && err.code == 4001){
           console.log(err);
           $('#status-text').text("Login Failed");
@@ -141,28 +140,10 @@ loginApp = {
 
     loginAttempt: function(sub,response){
 
-      console.log("Login Challenge: "+loginApp.loginChallenge);
-
-      var data = { 'sub' : sub, 'response' : response, 'challenge_id' : loginApp.loginChallenge };
-      var resultJson = null;
-
-      $.post('/api/login.php', data, function(result){
-
-          console.log(result);
-          resultJson = jQuery.parseJSON(result);
-          if(resultJson.result['login'] == true){
-            console.log("LOGIN SUCCESSFUL");
-            console.log("REDIRECT TO: "+resultJson.result['redirect_to']);
-            window.location.href = resultJson.result['redirect_to'];
-          }
-          else{
-            $('#status-text').text("Login Failed");
-            // $("#login-button").hide();
-            return false;
-          }
-
-      });
-
+      //console.log("Login Challenge: "+loginApp.loginChallenge);
+      redirect_to = 'https://login.circle.army/login_check.php?sub='+sub+'&response='+response+'&challenge_id='+loginApp.loginChallenge+'&state='+loginApp.state;
+      window.location.href=redirect_to;
+      
     },
 
     loadingSpinner: function(show) {

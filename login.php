@@ -5,7 +5,10 @@ require './api/include/include.php';
 
 // Start Session
 session_start();
+$state = generateNonce(64);
+$_SESSION['state']=hash('sha512',$state);
 
+// Check arguments
 if(isset($_GET['login_challenge'])){
   $loginChallenge = $_GET['login_challenge'];
   //print($loginChallenge);
@@ -15,35 +18,30 @@ else{
   exit();
 }
 
-// Get challenge information
+// Validate Challenge
 $crl = curl_init($OAUTH2_ADMIN_ENDPOINT.'oauth2/auth/requests/login?login_challenge='.$loginChallenge);
 curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($crl, CURLINFO_HEADER_OUT, true);
-// Set HTTP Header for POST request 
 curl_setopt($crl, CURLOPT_HTTPHEADER, array(
   'Content-Type: application/json'
 ));
-
-// Submit the POST request
 try{
   $result = curl_exec($crl);
 }
 catch (exception $e){
   var_dump($e);
 }
-
+// Decode Result
 $resultObj = json_decode($result);
-//var_dump($result);
+// Validate Result
 if(isset($resultObj->skip)){
   error_log("login.php: skip set, valid request");
   $skip = $resultObj->skip;
   if($skip){
-    //echo "<br>Remember set, skipping";
-    error_log("login.php: already logged-in skipping");
+    //error_log("login.php: already logged-in skipping");
   }
   else{
-    //echo "<br>Skip false, force login";
-    error_log("login.php: skip false, forcing login");
+    //error_log("login.php: skip false, forcing login");
   }
 }
 else{
@@ -111,14 +109,13 @@ else{
 
     </main>
 
-    <?php
-    include 'include/footer.php';
-    ?>
+    
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     
 
     <i id="challenge_id" hidden><?php echo $loginChallenge;?></i>
+    <i id="session_state" hidden><?php echo $state; ?></i>
 
     <!--Web3 Stuff-->
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>

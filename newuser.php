@@ -133,12 +133,8 @@ error_log("newuser.php: No user exists, can create new user");
 
     </main>
 
-    <?php
-    include 'include/footer.php';
-    ?>
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-    
 
     <i id="challenge_id" hidden><?php echo $loginChallenge;?></i>
 

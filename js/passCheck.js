@@ -46,7 +46,7 @@ $('#pass').on('input', function (){
     }
 
     if(checks == 3){
-        console.log("All Password Reqs Satisfied");
+        //console.log("All Password Reqs Satisfied");
         $('#login-button').prop("disabled",false);
     }
     else{

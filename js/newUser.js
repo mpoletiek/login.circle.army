@@ -94,18 +94,8 @@ loginApp = {
       loginApp.loadingSpinner(false);
       // Query the login db for the user
       // get the sign-in key.
-      data = {'sub': loginApp.accounts[0]};
-
-      $.post("/api/login.php", data, function(result){
-        console.log(result);
-        var jsonResult = jQuery.parseJSON(result);
-        console.log("Challenge: "+jsonResult.result['challenge']);
-        loginApp.challenge = jsonResult.result['challenge'];
-
-      });
       
       // We're connected, show password prompt and check for valid passwords
-
       $('#login-button').show();
       $('#password-input').show();
       $('#password-text').show();
