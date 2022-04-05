@@ -98,6 +98,7 @@ loginApp = {
       // We're connected, show password prompt and check for valid passwords
       $('#login-button').show();
       $('#password-input').show();
+      $('#password-input2').show();
       $('#password-text').show();
       $('#status-text').text("Wallet Connected");
 

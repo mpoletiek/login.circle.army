@@ -83,10 +83,9 @@ else{
             <i class="fa-solid fa-user fa-10x"></i>
             <!--<img class="mb-4" src="/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57">
             <button class="w-100 btn btn-lg btn-primary btn-light" type="submit" onclick="loginApp.init();">Login</button>-->
-            <p id="status-text" class="mt-5 mb-3 text-muted">Checking Web3</p>
             <div class="input-group mb-3" id="password-input" style="display: none;">
               <span class="input-group-text" id="basic-addon1">Password:</span>
-              <input type="text" class="form-control" id="pass" placeholder="Password" aria-label="Password" aria-describedby="basic-addon1">
+              <input type="password" class="form-control" id="pass" placeholder="Password" aria-label="Password" aria-describedby="basic-addon1">
             </div>
             <div id="password-text" style="display: none;">
               <p>Password Requirements:</p>
@@ -97,6 +96,7 @@ else{
               </ul>
             </div>
             <button id="login-button" class="w-100 btn btn-lg btn-primary btn-light" disabled="true" type="submit" style="display:none" onclick="loginApp.signSecret();">Login</button>
+            <p id="status-text" class="mt-5 mb-3 text-muted">Checking Web3</p>
         </div>
         <div id="secondRow" class="row justify-content-center">
             <!-- Loading Spinner -->
