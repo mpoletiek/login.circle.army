@@ -175,9 +175,10 @@ elseif($_POST['consent_accept'] == "false"){
     <main class="main form-signin">
 
         <div id="firstRow" class="row justify-content-center">
-            <i class="fa-solid fa-user fa-10x"></i>
+            <!-- <i class="fa-solid fa-user fa-10x"></i> -->
+            <h1>Consent</h1>
             <img src="<?php echo $client->logo_uri; ?>" width="100px" height="100px">
-            <p><?php echo $client->client_name; ?> is requesting access to the following.</p>
+            <p><?php echo $client->client_name; ?> is requesting access to your information.</p>
             <form method="POST" action="consent.php">
                 <input type="hidden" name="consent_challenge" value="<?php echo $consentChallenge; ?>">
                 <input type="hidden" name="consent_accept" value="true">

@@ -80,7 +80,8 @@ else{
     <main class="main form-signin">
 
         <div id="firstRow" class="row justify-content-center">
-            <i class="fa-solid fa-user fa-10x"></i>
+            <!--<i class="fa-solid fa-user fa-10x"></i> -->
+            <h1>Login</h1>
             <!--<img class="mb-4" src="/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57">
             <button class="w-100 btn btn-lg btn-primary btn-light" type="submit" onclick="loginApp.init();">Login</button>-->
             <div class="input-group mb-3" id="password-input" style="display: none;">

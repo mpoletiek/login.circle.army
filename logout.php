@@ -138,7 +138,8 @@ elseif($_POST['logout_accept'] == "false"){
     <main class="main form-signin">
 
         <div id="firstRow" class="row justify-content-center">
-            <i class="fa-solid fa-user fa-10x"></i>
+            <!-- <i class="fa-solid fa-user fa-10x"></i> -->
+            <h1>Logout</h1>
             <p>Are you sure you wish to log out from <?php echo $client->client_name; ?>?</p>
             <form method="POST" action="logout.php">
                 <input type="hidden" name="logout_challenge" value="<?php echo $logoutChallenge; ?>">

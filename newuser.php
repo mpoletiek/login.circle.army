@@ -102,7 +102,7 @@ error_log("newuser.php: No user exists, can create new user");
     <main class="main form-signin">
 
         <div id="firstRow" class="row justify-content-center">
-            <i class="fa-solid fa-user fa-10x"></i>
+            <!-- <i class="fa-solid fa-user fa-10x"></i> -->
             <h1>Create Your Circle.Army Account</h1>
             <p>Enter your desired password.</p>
             <!--<img class="mb-4" src="/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57">
